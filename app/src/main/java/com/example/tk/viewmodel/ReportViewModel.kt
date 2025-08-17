@@ -8,6 +8,7 @@ import kotlinx.coroutines.flow.StateFlow
 
 class ReportViewModel : ViewModel() {
 
+    private val _allMessages = FakeRepository.getMessegae() // ungefilterte Nachrichten
     private val _messegae = MutableStateFlow(FakeRepository.getMessegae())
     val messegae: StateFlow<List<Message>> = _messegae
     private val _reportText = MutableStateFlow("")
