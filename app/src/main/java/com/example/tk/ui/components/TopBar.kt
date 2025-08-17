@@ -1,8 +1,12 @@
 package com.example.tkapp.ui.components
 import android.text.Layout
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.filled.ArrowBack
@@ -29,12 +33,16 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 
 
+
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun TopBar(
+    isLoggedIn: Boolean,
+    username: String? = null,
     onMenuClick: () -> Unit = {},
     onSearchClick: () -> Unit = {},
-    onLoginClick: () -> Unit = {},
+    onProfileClick: () -> Unit = {},
     onMailClick: () -> Unit = {}
 ) {
     val tkBlue = Color(0xFF0061A5)
@@ -50,8 +58,25 @@ fun TopBar(
             IconButton(onClick = onSearchClick) {
                 Icon(Icons.Default.Search, contentDescription = "Suche", tint = Color.White)
             }
-            IconButton(onClick = onLoginClick) {
-                Icon(Icons.Default.Person, contentDescription = "Login", tint = Color.White)
+            IconButton(onClick = onProfileClick) {
+                if (isLoggedIn && username != null) {
+                    // Zeige Profilbild oder Avatar mit Initialen
+                    Box(
+                        modifier = Modifier
+                            .size(32.dp)
+                            .background(Color.White, CircleShape)
+                            .padding(4.dp),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        Text(
+                            text = username.take(1).uppercase(),
+                            color = tkBlue,
+                            fontWeight = FontWeight.Bold
+                        )
+                    }
+                } else {
+                    Icon(Icons.Default.Person, contentDescription = "Anmelden", tint = Color.White)
+                }
             }
             IconButton(onClick = onMailClick) {
                 Icon(Icons.Default.Email, contentDescription = "Nachrichten", tint = Color.White)

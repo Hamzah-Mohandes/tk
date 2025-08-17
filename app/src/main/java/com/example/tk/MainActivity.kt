@@ -11,10 +11,9 @@ import com.example.tk.ui.screen.DashboardScreen
 import com.example.tk.ui.screen.LoginScreen
 import com.example.tk.ui.screen.ReportScreen
 import com.example.tk.viewmodel.LoginViewModel
-
-
-// Am Anfang der Datei hinzufügen:
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.tk.ui.screen.ProfileScreen
+import com.example.tk.ui.screen.SearchScreen
 import com.example.tk.viewmodel.ReportViewModel
 
 class MainActivity : ComponentActivity() {
@@ -30,10 +29,20 @@ class MainActivity : ComponentActivity() {
                     DashboardScreen(navController, loginViewModel, reportViewModel)
                 }
                 composable("report") {
-                    ReportScreen()
+                    ReportScreen( navController)
+                }
+                composable("messages") {
                 }
                 composable("login") {
                     LoginScreen(navController, loginViewModel)
+                }
+                composable("profile") {
+                    // Profil-Screen
+                    ProfileScreen(navController)
+                }
+                composable("search") {
+                    // Such-Screen
+                    SearchScreen(navController)
                 }
             }
         }

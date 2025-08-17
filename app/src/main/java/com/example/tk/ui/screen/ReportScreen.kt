@@ -1,19 +1,30 @@
 package com.example.tk.ui.screen
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Info
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Divider
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
@@ -22,18 +33,24 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.tk.data.repository.FakeRepository
 import com.example.tk.viewmodel.ReportViewModel
 import kotlinx.coroutines.launch
 
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ReportScreen(viewModel: ReportViewModel = viewModel()) {
+fun ReportScreen(
+    navController: NavController,
+    viewModel: ReportViewModel = viewModel()
+) {
+    val tkBlue = Color(0xFF0061A5)
     val reportText by viewModel.reportText.collectAsState()
     val scope = rememberCoroutineScope()
     val scrollState = rememberScrollState()
@@ -41,10 +58,24 @@ fun ReportScreen(viewModel: ReportViewModel = viewModel()) {
     Scaffold(
         topBar = {
             TopAppBar(
-                title = { Text("Krankmeldung einreichen") },
+                title = {
+                    Text(
+                        "Krankmeldung einreichen",
+                        color = Color.White
+                    )
+                },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = "Zurück",
+                            tint = Color.White
+                        )
+                    }
+                },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primaryContainer,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimaryContainer
+                    containerColor = tkBlue,
+                    titleContentColor = Color.White
                 )
             )
         }
@@ -56,49 +87,116 @@ fun ReportScreen(viewModel: ReportViewModel = viewModel()) {
                 .padding(16.dp)
                 .verticalScroll(scrollState)
         ) {
-            Text(
-                "Bitte geben Sie hier Ihre Krankmeldung ein:",
-                style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-
-            OutlinedTextField(
-                value = reportText,
-                onValueChange = { viewModel.updateReport(it) },
-                label = { Text("Krankmeldungstext") },
+            // Header
+            Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp),
-                placeholder = { Text("Beschreiben Sie hier Ihre Symptome...") },
-                shape = MaterialTheme.shapes.medium
-            )
+                    .padding(bottom = 24.dp),
+                elevation = CardDefaults.cardElevation(2.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    Text(
+                        "Krankmeldung erfassen",
+                        style = MaterialTheme.typography.titleLarge,
+                        color = tkBlue,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+                    Text(
+                        "Bitte beschreiben Sie Ihre Symptome so genau wie möglich.",
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            // Input Section
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 24.dp),
+                elevation = CardDefaults.cardElevation(2.dp)
+            ) {
+                Column(
+                    modifier = Modifier.padding(16.dp)
+                ) {
+                    OutlinedTextField(
+                        value = reportText,
+                        onValueChange = { viewModel.updateReport(it) },
+                        label = { Text("Beschreibung der Symptome") },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(180.dp),
+                        placeholder = {
+                            Text(
+                                "Zum Beispiel: Fieber, Husten, Kopfschmerzen...",
+                                color = Color.Gray
+                            )
+                        },
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedBorderColor = tkBlue,
+                            focusedLabelColor = tkBlue,
+                            cursorColor = tkBlue
+                        )
+                    )
 
-            // Hinweis zur Datenverarbeitung
-            Text(
-                "Hinweis: Ihre Krankmeldung wird verschlüsselt an die TK übertragen.",
-                style = MaterialTheme.typography.bodySmall,
-                color = MaterialTheme.colorScheme.onSurfaceVariant,
-                modifier = Modifier.padding(bottom = 16.dp)
-            )
+                    // Character counter
+                    Text(
+                        text = "${reportText.length}/1000 Zeichen",
+                        style = MaterialTheme.typography.labelSmall,
+                        color = Color.Gray,
+                        modifier = Modifier
+                            .align(Alignment.End)
+                            .padding(top = 4.dp)
+                    )
+                }
+            }
 
-            // Absenden-Button
+            // Info Box
+            Card(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 24.dp),
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
+                )
+            ) {
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Info,
+                        contentDescription = null,
+                        tint = tkBlue,
+                        modifier = Modifier.padding(end = 8.dp)
+                    )
+                    Text(
+                        "Ihre Daten werden verschlüsselt übertragen und vertraulich behandelt.",
+                        style = MaterialTheme.typography.bodySmall
+                    )
+                }
+            }
+
+            // Submit Button
             Button(
                 onClick = {
                     scope.launch {
-                        // Hier würde die Logik zum Absenden der Krankmeldung stehen
-                        // z.B. viewModel.submitSickNote()
+                        // Submit logic here
                     }
                 },
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(50.dp),
-                enabled = reportText.isNotBlank(),
+                    .height(56.dp),
+                enabled = reportText.isNotBlank() && reportText.length in 10..1000,
                 colors = ButtonDefaults.buttonColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
-                    disabledContainerColor = MaterialTheme.colorScheme.surfaceVariant
-                )
+                    containerColor = tkBlue,
+                    contentColor = Color.White
+                ),
+                shape = RoundedCornerShape(8.dp)
             ) {
                 Text(
                     "Krankmeldung absenden",
@@ -106,23 +204,15 @@ fun ReportScreen(viewModel: ReportViewModel = viewModel()) {
                 )
             }
 
-            // Zusätzliche Informationen
-            Spacer(modifier = Modifier.height(16.dp))
-            Divider(modifier = Modifier.padding(vertical = 8.dp))
-
-            Text(
-                "Wichtige Informationen:",
-                style = MaterialTheme.typography.titleSmall,
-                fontWeight = FontWeight.Bold,
-                modifier = Modifier.padding(bottom = 8.dp)
-            )
-
-            Text(
-                "• Bitte beachten Sie, dass Sie für die Vorlage bei Ihrem Arbeitgeber ggf. weiterhin eine ärztliche Bescheinigung benötigen.\n" +
-                        "• Die Bearbeitungsdauer beträgt in der Regel 1-2 Werktage.\n" +
-                        "• Bei Rückfragen kontaktieren Sie uns gerne unter 0800 - 285 85 85.",
-                style = MaterialTheme.typography.bodyMedium
-            )
+            // Additional Info
+            if (reportText.isNotBlank() && reportText.length < 10) {
+                Text(
+                    "Bitte geben Sie mindestens 10 Zeichen ein.",
+                    color = MaterialTheme.colorScheme.error,
+                    style = MaterialTheme.typography.bodySmall,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+            }
         }
     }
 }

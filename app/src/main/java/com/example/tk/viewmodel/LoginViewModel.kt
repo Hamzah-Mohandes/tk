@@ -13,15 +13,17 @@ class LoginViewModel: ViewModel() {
 
 
     fun isLoggedIn(): Boolean = _isLoggedIn.value
+    // In LoginViewModel.kt
+    private val _email = MutableStateFlow<String?>(null)
+    val email: StateFlow<String?> = _email
 
-    fun login(user: String, password: String): Boolean {
-        return if (user.isNotEmpty() && password.isNotEmpty()) {
+    fun login(email: String, password: String): Boolean {
+        return if (email.isNotEmpty() && password.isNotEmpty()) {
             _isLoggedIn.value = true
-            _username.value = user
+            _username.value = email.split("@").firstOrNull() ?: "Benutzer"
+            _email.value = email
             true
         } else {
-            _isLoggedIn.value = false
-            _username.value = null
             false
         }
     }
@@ -29,5 +31,6 @@ class LoginViewModel: ViewModel() {
     fun logout() {
         _isLoggedIn.value = false
         _username.value = null
+        _email.value = null
     }
 }
