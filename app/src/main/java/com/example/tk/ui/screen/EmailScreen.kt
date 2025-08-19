@@ -61,7 +61,8 @@ fun EmailScreen(navController: NavController) {
                 title = { Text("E-Mail an TK") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Zurück")
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Zurück"
+                        , tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
