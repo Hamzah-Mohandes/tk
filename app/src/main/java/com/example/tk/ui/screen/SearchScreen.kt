@@ -20,42 +20,39 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.tk.domain.model.Message
 import com.example.tk.viewmodel.ReportViewModel
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun SearchScreen(
     navController: NavController,
-    viewModel: ReportViewModel = viewModel()
+    viewModel: ReportViewModel = viewModel() // 1. ViewModel-Injection
 ) {
+    // 2. Design-Farben
     val tkBlue = Color(0xFF0061A5)
+
+    // 3. State-Management für Suchanfrage
     var searchQuery by remember { mutableStateOf("") }
+
+    // 4. Nachrichten-Stream aus dem ViewModel
     val messages by viewModel.messages.collectAsState()
 
+    // 5. Filterlogik (UI-seitig)
     val filteredMessages = messages.filter { message ->
         message.content.contains(searchQuery, ignoreCase = true) ||
                 message.title.contains(searchQuery, ignoreCase = true)
     }
 
+    // 6. Grundgerüst des Screens
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = {
-                    Text(
-                        "Nachrichten durchsuchen",
-                        color = Color.White
-                    )
-                },
+            TopAppBar( // 7. AppBar mit Navigation
+                title = { Text("Nachrichten durchsuchen", color = Color.White) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
-                        Icon(
-                            Icons.Default.ArrowBack,
-                            contentDescription = "Zurück",
-                            tint = Color.White
-                        )
+                        Icon(Icons.Default.ArrowBack, "Zurück", tint = Color.White)
                     }
                 },
                 colors = TopAppBarDefaults.topAppBarColors(
-                    containerColor = tkBlue,
+                    containerColor = tkBlue, // Markenfarbe
                     titleContentColor = Color.White
                 )
             )
@@ -67,89 +64,38 @@ fun SearchScreen(
                 .padding(innerPadding)
                 .padding(16.dp)
         ) {
-            // Search Bar
+            // 8. Suchfeld
             OutlinedTextField(
                 value = searchQuery,
-                onValueChange = { searchQuery = it },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(bottom = 16.dp),
-                placeholder = {
-                    Text(
-                        "Nachrichten durchsuchen...",
-                        color = Color.Gray.copy(alpha = 0.7f)
-                    )
-                },
-                leadingIcon = {
-                    Icon(
-                        Icons.Default.Search,
-                        contentDescription = "Suchen",
-                        tint = tkBlue
-                    )
-                },
+                onValueChange = { searchQuery = it }, // Update bei Eingabe
+                modifier = Modifier.fillMaxWidth(),
+                placeholder = { Text("Nachrichten durchsuchen...") },
+                leadingIcon = { Icon(Icons.Default.Search, "Suchen", tint = tkBlue) },
                 colors = OutlinedTextFieldDefaults.colors(
-                    focusedBorderColor = tkBlue,
-                    unfocusedBorderColor = Color.Gray.copy(alpha = 0.3f),
-                    cursorColor = tkBlue,
-                    focusedLabelColor = tkBlue
+                    focusedBorderColor = tkBlue, // Markenfarbe für Fokus
+                    unfocusedBorderColor = Color.Gray.copy(alpha = 0.3f)
                 ),
-                shape = RoundedCornerShape(12.dp)
+                shape = RoundedCornerShape(12.dp) // Abgerundete Ecken
             )
 
-            // Search Results
-            if (searchQuery.isNotBlank()) {
-                if (filteredMessages.isNotEmpty()) {
-                    Text(
-                        "${filteredMessages.size} Ergebnisse gefunden",
-                        style = MaterialTheme.typography.bodySmall,
-                        color = Color.Gray,
-                        modifier = Modifier.padding(bottom = 8.dp)
-                    )
+            // 9. Dynamische Inhalte basierend auf Suche
+            when {
+                searchQuery.isBlank() ->
+                    PlaceholderText("Geben Sie einen Suchbegriff ein")
 
-                    LazyColumn(
-                        verticalArrangement = Arrangement.spacedBy(8.dp)
-                    ) {
-                        items(filteredMessages) { message ->
-                            MessageItem(
-                                message = message,
-                                onClick = {
-                                    navController.navigate("messageDetail/${message.id}")
-                                }
-                            )
-                        }
-                    }
-                } else {
-                    Box(
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .weight(1f),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        Text(
-                            "Keine Ergebnisse gefunden",
-                            style = MaterialTheme.typography.bodyLarge,
-                            color = Color.Gray
-                        )
-                    }
-                }
-            } else {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .weight(1f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Text(
-                        "Geben Sie einen Suchbegriff ein",
-                        style = MaterialTheme.typography.bodyLarge,
-                        color = Color.Gray
-                    )
+                filteredMessages.isEmpty() ->
+                    PlaceholderText("Keine Ergebnisse gefunden")
+
+                else -> {
+                    SearchResultsCount(filteredMessages.size)
+                    MessagesList(filteredMessages, navController)
                 }
             }
         }
     }
 }
 
+// 10. Wiederverwendbare Komponente für Nachrichteneinträge
 @Composable
 private fun MessageItem(
     message: Message,
@@ -161,27 +107,52 @@ private fun MessageItem(
             .clickable(onClick = onClick),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
-        Column(
-            modifier = Modifier.padding(16.dp)
-        ) {
+        Column(Modifier.padding(16.dp)) {
             Text(
                 text = message.title,
                 style = MaterialTheme.typography.titleMedium,
                 fontWeight = FontWeight.Bold
             )
-            Spacer(modifier = Modifier.height(4.dp))
             Text(
                 text = message.content,
-                style = MaterialTheme.typography.bodyMedium,
                 maxLines = 2,
                 overflow = TextOverflow.Ellipsis,
                 color = Color.Gray
             )
-            Spacer(modifier = Modifier.height(8.dp))
             Text(
                 text = message.date,
                 style = MaterialTheme.typography.labelSmall,
                 color = Color.Gray
+            )
+        }
+    }
+}
+
+// Hilfskomponenten für bessere Lesbarkeit
+@Composable
+private fun PlaceholderText(text: String) {
+    Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+        Text(text, style = MaterialTheme.typography.bodyLarge, color = Color.Gray)
+    }
+}
+
+@Composable
+private fun SearchResultsCount(count: Int) {
+    Text(
+        "$count Ergebnisse gefunden",
+        style = MaterialTheme.typography.bodySmall,
+        color = Color.Gray,
+        modifier = Modifier.padding(bottom = 8.dp)
+    )
+}
+
+@Composable
+private fun MessagesList(messages: List<Message>, navController: NavController) {
+    LazyColumn(verticalArrangement = Arrangement.spacedBy(8.dp)) {
+        items(messages) { message ->
+            MessageItem(
+                message = message,
+                onClick = { navController.navigate("messageDetail/${message.id}") }
             )
         }
     }
