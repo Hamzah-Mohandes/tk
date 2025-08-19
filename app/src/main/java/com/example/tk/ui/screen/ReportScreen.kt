@@ -1,5 +1,7 @@
 package com.example.tk.ui.screen
 
+import androidx.compose.foundation.background
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -26,6 +28,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.material3.TopAppBarDefaults
@@ -43,7 +46,6 @@ import androidx.navigation.NavController
 import com.example.tk.data.repository.FakeRepository
 import com.example.tk.viewmodel.ReportViewModel
 import kotlinx.coroutines.launch
-
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun ReportScreen(
@@ -51,16 +53,16 @@ fun ReportScreen(
     viewModel: ReportViewModel = viewModel()
 ) {
     val tkBlue = Color(0xFF0061A5)
+    val tkLightBlue = Color(0xFFE3F2FD)
     val reportText by viewModel.reportText.collectAsState()
     val scope = rememberCoroutineScope()
-    val scrollState = rememberScrollState()
 
     Scaffold(
         topBar = {
             TopAppBar(
                 title = {
                     Text(
-                        "Krankmeldung einreichen",
+                        "Neue Krankmeldung",
                         color = Color.White
                     )
                 },
@@ -84,15 +86,15 @@ fun ReportScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(16.dp)
-                .verticalScroll(scrollState)
+                .background(Color(0xFFF8F9FA))
         ) {
-            // Header
+            // Header Card
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 24.dp),
-                elevation = CardDefaults.cardElevation(2.dp)
+                    .padding(16.dp),
+                elevation = CardDefaults.cardElevation(2.dp),
+                shape = RoundedCornerShape(16.dp)
             ) {
                 Column(
                     modifier = Modifier.padding(16.dp)
@@ -101,12 +103,14 @@ fun ReportScreen(
                         "Krankmeldung erfassen",
                         style = MaterialTheme.typography.titleLarge,
                         color = tkBlue,
-                        modifier = Modifier.padding(bottom = 8.dp)
+                        fontWeight = FontWeight.Bold
                     )
+                    Spacer(modifier = Modifier.height(8.dp))
                     Text(
-                        "Bitte beschreiben Sie Ihre Symptome so genau wie möglich.",
+                        "Bitte beschreiben Sie Ihre Symptome so genau wie möglich. " +
+                                "Ein Arzt wird Ihre Angaben prüfen und sich bei Rückfragen bei Ihnen melden.",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                        color = Color.Gray
                     )
                 }
             }
@@ -115,103 +119,105 @@ fun ReportScreen(
             Card(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 24.dp),
-                elevation = CardDefaults.cardElevation(2.dp)
+                    .padding(horizontal = 16.dp)
+                    .weight(1f),
+                elevation = CardDefaults.cardElevation(2.dp),
+                shape = RoundedCornerShape(16.dp)
             ) {
                 Column(
-                    modifier = Modifier.padding(16.dp)
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp)
                 ) {
+                    Text(
+                        "Beschreibung der Symptome",
+                        style = MaterialTheme.typography.titleSmall,
+                        color = tkBlue,
+                        modifier = Modifier.padding(bottom = 8.dp)
+                    )
+
                     OutlinedTextField(
                         value = reportText,
                         onValueChange = { viewModel.updateReport(it) },
-                        label = { Text("Beschreibung der Symptome") },
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(180.dp),
+                            .weight(1f),
                         placeholder = {
                             Text(
-                                "Zum Beispiel: Fieber, Husten, Kopfschmerzen...",
-                                color = Color.Gray
+                                "Bitte beschreiben Sie hier Ihre Symptome...",
+                                color = Color.Gray.copy(alpha = 0.7f)
                             )
                         },
                         colors = OutlinedTextFieldDefaults.colors(
                             focusedBorderColor = tkBlue,
-                            focusedLabelColor = tkBlue,
-                            cursorColor = tkBlue
-                        )
+                            unfocusedBorderColor = Color.Gray.copy(alpha = 0.3f),
+                            cursorColor = tkBlue,
+                            focusedContainerColor = Color.White,
+                            unfocusedContainerColor = Color.White
+                        ),
+                        shape = RoundedCornerShape(12.dp)
                     )
 
                     // Character counter
-                    Text(
-                        text = "${reportText.length}/1000 Zeichen",
-                        style = MaterialTheme.typography.labelSmall,
-                        color = Color.Gray,
-                        modifier = Modifier
-                            .align(Alignment.End)
-                            .padding(top = 4.dp)
-                    )
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        if (reportText.isNotEmpty() && reportText.length < 20) {
+                            Text(
+                                "Bitte beschreiben Sie Ihre Symptome genauer",
+                                color = MaterialTheme.colorScheme.error,
+                                style = MaterialTheme.typography.labelSmall
+                            )
+                        } else {
+                            Spacer(modifier = Modifier.weight(1f))
+                        }
+                        Text(
+                            text = "${reportText.length}/1000",
+                            style = MaterialTheme.typography.labelSmall,
+                            color = if (reportText.length > 1000) MaterialTheme.colorScheme.error else Color.Gray
+                        )
+                    }
                 }
             }
 
-            // Info Box
-            Card(
+            // Bottom Action Bar
+            Surface(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(bottom = 24.dp),
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.3f)
-                )
+                    .padding(16.dp),
+                color = Color.Transparent,
+                shadowElevation = 8.dp
             ) {
-                Row(
+                Button(
+                    onClick = {
+                        scope.launch {
+                            // Submit logic here
+                        }
+                    },
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(16.dp),
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Icon(
-                        imageVector = Icons.Default.Info,
-                        contentDescription = null,
-                        tint = tkBlue,
-                        modifier = Modifier.padding(end = 8.dp)
+                        .height(56.dp),
+                    enabled = reportText.isNotBlank() && reportText.length in 20..1000,
+                    colors = ButtonDefaults.buttonColors(
+                        containerColor = tkBlue,
+                        disabledContainerColor = Color.Gray.copy(alpha = 0.3f),
+                        contentColor = Color.White,
+                        disabledContentColor = Color.White.copy(alpha = 0.7f)
+                    ),
+                    shape = RoundedCornerShape(12.dp),
+                    elevation = ButtonDefaults.buttonElevation(
+                        defaultElevation = 0.dp,
+                        pressedElevation = 2.dp
                     )
+                ) {
                     Text(
-                        "Ihre Daten werden verschlüsselt übertragen und vertraulich behandelt.",
-                        style = MaterialTheme.typography.bodySmall
+                        "Krankmeldung absenden",
+                        style = MaterialTheme.typography.titleSmall,
+                        fontWeight = FontWeight.Bold
                     )
                 }
-            }
-
-            // Submit Button
-            Button(
-                onClick = {
-                    scope.launch {
-                        // Submit logic here
-                    }
-                },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(56.dp),
-                enabled = reportText.isNotBlank() && reportText.length in 10..1000,
-                colors = ButtonDefaults.buttonColors(
-                    containerColor = tkBlue,
-                    contentColor = Color.White
-                ),
-                shape = RoundedCornerShape(8.dp)
-            ) {
-                Text(
-                    "Krankmeldung absenden",
-                    style = MaterialTheme.typography.labelLarge
-                )
-            }
-
-            // Additional Info
-            if (reportText.isNotBlank() && reportText.length < 10) {
-                Text(
-                    "Bitte geben Sie mindestens 10 Zeichen ein.",
-                    color = MaterialTheme.colorScheme.error,
-                    style = MaterialTheme.typography.bodySmall,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
             }
         }
     }

@@ -4,7 +4,6 @@ import com.example.tk.data.repository.FakeRepository
 import com.example.tk.domain.model.Message
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.map
 
 class ReportViewModel : ViewModel() {
     // Enthält die ursprüngliche, ungefilterte Liste der Nachrichten
@@ -49,5 +48,9 @@ class ReportViewModel : ViewModel() {
     fun clearSearch() {
         _searchText.value = ""
         _messages.value = _allMessages
+    }
+
+    fun getMessageById(id: Int): Message? {
+        return _allMessages.find { it.id == id }
     }
 }

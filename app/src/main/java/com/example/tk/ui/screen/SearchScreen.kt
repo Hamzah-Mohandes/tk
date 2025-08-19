@@ -1,6 +1,6 @@
 package com.example.tk.ui.screen
 
-import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
@@ -14,11 +14,12 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
-import com.example.tk.viewmodel.ReportViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
+import androidx.navigation.NavController
 import com.example.tk.domain.model.Message
+import com.example.tk.viewmodel.ReportViewModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -109,7 +110,12 @@ fun SearchScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
                         items(filteredMessages) { message ->
-                            MessageItem(message = message)
+                            MessageItem(
+                                message = message,
+                                onClick = {
+                                    navController.navigate("messageDetail/${message.id}")
+                                }
+                            )
                         }
                     }
                 } else {
@@ -145,9 +151,14 @@ fun SearchScreen(
 }
 
 @Composable
-private fun MessageItem(message: Message) {
+private fun MessageItem(
+    message: Message,
+    onClick: () -> Unit
+) {
     Card(
-        modifier = Modifier.fillMaxWidth(),
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable(onClick = onClick),
         elevation = CardDefaults.cardElevation(2.dp)
     ) {
         Column(
@@ -163,6 +174,7 @@ private fun MessageItem(message: Message) {
                 text = message.content,
                 style = MaterialTheme.typography.bodyMedium,
                 maxLines = 2,
+                overflow = TextOverflow.Ellipsis,
                 color = Color.Gray
             )
             Spacer(modifier = Modifier.height(8.dp))
