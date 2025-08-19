@@ -73,9 +73,6 @@ fun TopBar(
                     Icon(Icons.Default.Person, contentDescription = "Anmelden", tint = Color.White)
                 }
             }
-            IconButton(onClick = onMailClick) {
-                Icon(Icons.Default.Email, contentDescription = "Nachrichten", tint = Color.White)
-            }
         },
         colors = TopAppBarDefaults.topAppBarColors(
             containerColor = tkBlue,

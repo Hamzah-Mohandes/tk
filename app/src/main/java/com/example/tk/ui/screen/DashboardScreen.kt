@@ -6,21 +6,21 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.ArrowForward
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material3.*
 import androidx.compose.runtime.*
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import com.example.tk.viewmodel.LoginViewModel
 import com.example.tk.viewmodel.ReportViewModel
 import com.example.tkapp.ui.components.TopBar
-import androidx.compose.material.icons.filled.ArrowForward
-import androidx.compose.ui.text.style.TextOverflow
-
-
 
 @Composable
 fun DashboardScreen(
@@ -54,7 +54,7 @@ fun DashboardScreen(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .background(Color(0xFFF5F5F5)) // Light gray background
+                .background(Color(0xFFF5F5F5))
         ) {
             if (isLoggedIn && !username.isNullOrEmpty()) {
                 item {
@@ -68,6 +68,50 @@ fun DashboardScreen(
                 }
             }
 
+            // E-Mail Button
+            item {
+                Card(
+                    onClick = { navController.navigate("email") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(16.dp),
+                    elevation = CardDefaults.cardElevation(4.dp),
+                    shape = RoundedCornerShape(16.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = Color.White
+                    )
+                ) {
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Icon(
+                            imageVector = Icons.Default.Email,
+                            contentDescription = "E-Mail schreiben",
+                            tint = Color(0xFF0061A5),
+                            modifier = Modifier.size(24.dp)
+                        )
+                        Spacer(modifier = Modifier.width(16.dp))
+                        Text(
+                            "E-Mail an den TK-Service",
+                            style = MaterialTheme.typography.titleMedium.copy(
+                                color = Color(0xFF1A237E),
+                                fontWeight = FontWeight.Medium
+                            )
+                        )
+                        Spacer(Modifier.weight(1f))
+                        Icon(
+                            imageVector = Icons.Default.ArrowForward,
+                            contentDescription = null,
+                            tint = Color(0xFF1976D2)
+                        )
+                    }
+                }
+            }
+
+            // Nachrichten-Liste
             items(messages) { message ->
                 Card(
                     onClick = { navController.navigate("messageDetail/${message.id}") },
@@ -85,7 +129,7 @@ fun DashboardScreen(
                             .fillMaxWidth()
                             .padding(16.dp)
                     ) {
-                        // Date
+                        // Datum
                         Text(
                             text = message.date,
                             style = MaterialTheme.typography.labelMedium.copy(
@@ -95,7 +139,7 @@ fun DashboardScreen(
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
 
-                        // Title
+                        // Titel
                         Text(
                             text = message.title,
                             style = MaterialTheme.typography.titleMedium.copy(
@@ -105,7 +149,7 @@ fun DashboardScreen(
                             modifier = Modifier.padding(bottom = 8.dp)
                         )
 
-                        // Preview content (first 100 characters)
+                        // Vorschau-Text
                         Text(
                             text = message.content.take(100) + if (message.content.length > 100) "..." else "",
                             style = MaterialTheme.typography.bodyLarge.copy(
@@ -116,7 +160,7 @@ fun DashboardScreen(
                             modifier = Modifier.padding(bottom = 12.dp)
                         )
 
-                        // Read more button
+                        // "Mehr lesen" Button
                         Row(
                             modifier = Modifier.fillMaxWidth(),
                             horizontalArrangement = Arrangement.End
@@ -128,10 +172,10 @@ fun DashboardScreen(
                                     color = Color(0xFF1976D2)
                                 )
                             )
-                            Spacer( modifier = Modifier.width(8.dp))
+                            Spacer(modifier = Modifier.width(8.dp))
                             Icon(
                                 imageVector = Icons.Default.ArrowForward,
-                                contentDescription = "Read more",
+                                contentDescription = "Mehr lesen",
                                 modifier = Modifier.size(16.dp),
                                 tint = Color(0xFF1976D2)
                             )

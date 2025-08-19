@@ -15,6 +15,7 @@ import com.example.tk.viewmodel.LoginViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.navArgument
+import com.example.tk.ui.screen.EmailScreen
 import com.example.tk.ui.screen.MessageDetailScreen
 import com.example.tk.ui.screen.ProfileScreen
 import com.example.tk.ui.screen.SearchScreen
@@ -65,6 +66,10 @@ class MainActivity : ComponentActivity() {
                     } ?: run {
                         Text("Nachricht nicht gefunden")
                     }
+                }
+                composable("email") {
+                    // Email-Screen
+                    EmailScreen(navController)
                 }
             }
         }
