@@ -28,7 +28,7 @@ fun DashboardScreen(
     loginViewModel: LoginViewModel = viewModel(), // 10. Login-Status und Benutzerdaten
     reportViewModel: ReportViewModel = viewModel() // 10. Nachrichten-Daten
 ) {
-    // 6. State aus ViewModels beobachten (reaktive UI)
+
     val isLoggedIn by loginViewModel.isLoggedIn.collectAsState()
     val username by loginViewModel.username.collectAsState()
     val messages by reportViewModel.messages.collectAsState()
